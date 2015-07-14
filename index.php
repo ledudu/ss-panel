@@ -9,7 +9,7 @@ include_once 'header.php';
     <div class="jumbotron">
         <h2><?php echo $site_name; ?></h2>
         <p class="lead"> 每个月5G流量，美国节点。</p>
-        <p><a class="btn btn-lg btn-success" href="user/reg.php" role="button">立即注册</a></p>
+        <p><a class="btn btn-lg btn-success" href="user/register.php" role="button">立即注册</a></p>
     </div>
 
     <div class="row marketing">
@@ -17,7 +17,7 @@ include_once 'header.php';
             <a href="https://play.google.com/store/apps/details?id=com.github.shadowsocks"><h4>Android</h4></a>
             <p>Android客户端</p>
             <h4><a href="http://sourceforge.net/projects/shadowsocksgui/files/dist/">Shadowsocks C#</a></h4>
-            <p> Windows用户推荐此客户端.</p>
+            <p> Windows用户推荐此客户端。</p>
         </div>
 
         <div class="col-lg-6">
@@ -25,13 +25,13 @@ include_once 'header.php';
             <p>iOS客户端</p>
 
             <h4><a href="https://github.com/ohdarling/GoAgentX/releases">GoAgentX</a></h4>
-            <p> Mac用户推荐此客户端.</p>
+            <p> OS X用户推荐此客户端。</p>
         </div>
     </div><?php
             include_once 'footer.php';
             include_once 'ana.php';?>
 </div> <!-- /container -->
 <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-<script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>
+<script src="asset/js/ie10-viewport-bug-workaround.js"></script>
 </body>
 </html>

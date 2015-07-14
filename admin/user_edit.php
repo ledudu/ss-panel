@@ -1,66 +1,28 @@
 <?php
-//引入配置文件
-require_once 'user_check.php';
-?>
-<!DOCTYPE html>
-<html>
-<head>
-    <title><?php echo $site_name;?></title>
-    <?php include_once 'lib/header.inc.php'; ?>
-</head>
-<body class="skin-blue">
-<?php include_once 'lib/nav.inc.php';
-include_once 'lib/slidebar_left.inc.php';
-
-$tomb = 1024*1024;
-$togb = $tomb*1024;
-
-//更新
-if(!empty($_POST)){
-    $user_uid = $_POST['user_uid'];
-    $user_name = $_POST['user_name'];
-    if(!empty($_POST['user_pass'])) {
-      $user_pass = md5($_POST['user_pass']);
-    }else{
-      $user_pass = $_POST['user_pass_hidden'];
-    }
-    if(!empty($_POST['user_email'])) {
-      $user_email = $_POST['user_email'];
-    }else{
-      $user_email = $_POST['user_email_hidden'];
-    }
-    $user_passwd = $_POST['user_passwd'];
-    if(!empty($_POST['transfer_enable'])) {
-      $transfer_enable = $togb*$_POST['transfer_enable'];
-    }else{
-      $transfer_enable = $_POST['transfer_enable_hidden'];
-    }
-    $n = new user($user_uid);
-    $query = $n->update($user_name,$user_email,$user_pass,$user_passwd,$transfer_enable);
-    if($query){
-        echo ' <script>alert("更新成功!")</script> ';
-        echo " <script>window.location='user.php';</script> " ;
-    }
-var_dump($query);
-}
+require_once '_main.php';
 
 if(!empty($_GET)){
     //获取id
     $uid = $_GET['uid'];
-    $sql = "SELECT * FROM `user` WHERE uid = '$uid' ";
-    $query = $dbc->query($sql);
-    $rs = $query->fetch_array();
+    $u = new \Ss\User\UserInfo($uid);
+    $rs = $u->UserArray();
 }
+
 ?>
-<!-- Right side column. Contains the navbar and content of the page -->
-<aside class="right-side">
+
+<!-- =============================================== -->
+
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
+        
         <h1>
-            用户列表
-            <small>User List</small>
+            用户管理
+            <small>User Manage</small>
         </h1>
     </section>
+
     <!-- Main content -->
     <section class="content">
         <div class="row">
@@ -71,54 +33,100 @@ if(!empty($_GET)){
                     <div class="box-header">
                         <h3 class="box-title">编辑用户</h3>
                     </div><!-- /.box-header -->
-                    <!-- form start -->
-                    <form role="form" method="post" action="user_edit.php">
                         <div class="box-body">
 
-                            <div class="form-group" style="display:none" >
-                                <label for="cate_title" >ID</label>
-                                <input  class="form-control" name="user_uid" value="<?php echo $uid;?>"  >
+                            <div class="form-group">
+                                <label for="cate_title">ID: <?php echo $uid;?></label>
+                                <input type="hidden" class="form-control" id="user_uid" value="<?php echo $uid;?>"  >
                             </div>
 
                             <div class="form-group">
                                 <label for="cate_title">用户名</label>
-                                <input  class="form-control" name="user_name" value="<?php echo $rs['user_name'];?>" >
+                                <input  class="form-control" id="name" value="<?php echo $rs['user_name'];?>" >
                             </div>
 
                             <div class="form-group">
                                 <label for="cate_title">用户邮箱</label>
-                                <input type="hidden" name="user_email_hidden" value="<?php echo $rs['email'];?>" >
-                                <input  class="form-control" name="user_email" placeholder="新邮箱(不修改请留空)" >
+                                <input  class="form-control" id="email" value="<?php echo $rs['email'];?>"  >
                             </div>
 
                             <div class="form-group">
-                                <label for="cate_title">用户密码</label>
-                                <input type="hidden" name="user_pass_hidden" value="<?php echo $rs['pass'];?>" >
-                                <input  class="form-control" name="user_pass" placeholder="新密码(不修改请留空)" >
-                            </div>
-
-                            <div class="form-group">
-                                <label for="cate_title">连接密码</label>
-                                <input  class="form-control" name="user_passwd" value="<?php echo $rs['passwd'];?>" >
+                                <label for="cate_title">SS连接密码</label>
+                                <input  class="form-control" id="passwd" value="<?php echo $rs['passwd'];?>" >
                             </div>
 
                             <div class="form-group">
                                 <label for="cate_title">设置流量</label>
-                                <input type="hidden" name="transfer_enable_hidden" value="<?php echo $rs['transfer_enable'];?>" >
-                                <input   class="form-control" name="transfer_enable"  placeholder="单位为GB，直接输入数值" >
+                                <input   class="form-control" id="transfer_enable"  value="<?php echo $rs['transfer_enable']/$togb;?>" placeholder="单位为GB，直接输入数值" >
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="cate_title">邀请码数量</label>
+
+                                <input  class="form-control" id="invite_num"  value="<?php echo $rs['invite_num'];?>"  >
                             </div>
 
                         </div><!-- /.box-body -->
 
                         <div class="box-footer">
-                            <button type="submit" name="action" value="edit" class="btn btn-primary">修改</button>
+                            <button type="submit" id="submit" name="submit"   class="btn btn-primary">修改</button>
                         </div>
-                    </form>
+                        <div id="msg-success" class="alert alert-info alert-dismissable" style="display: none;">
+                            <button type="button" class="close" id="ok-close" aria-hidden="true">&times;</button>
+                            <h4><i class="icon fa fa-info"></i> 成功!</h4>
+                            <p id="msg-success-p"></p>
+                        </div>
+                        <div id="msg-error" class="alert alert-warning alert-dismissable" style="display: none;">
+                            <button type="button" class="close" id="error-close" aria-hidden="true">&times;</button>
+                            <h4><i class="icon fa fa-warning"></i> 出错了!</h4>
+                            <p id="msg-error-p"></p>
+                        </div>
                 </div>
             </div><!-- /.box -->
         </div>   <!-- /.row -->
     </section><!-- /.content -->
-</aside><!-- /.right-side -->
-<?php include_once 'lib/footer.inc.php'; ?>
-</body>
-</html>
+</div><!-- /.content-wrapper -->
+
+<script>
+    $(document).ready(function(){
+        $("#submit").click(function(){
+            $.ajax({
+                type:"POST",
+                url:"_user_edit.php",
+                dataType:"json",
+                data:{
+                    uid: $("#uid").val(),
+                    name: $("#name").val(),
+                    email: $("#email").val(),
+                    passwd: $("#passwd").val(),
+                    transfer_enable: $("#transfer_enable").val(),
+                    invite_num: $("#invite_num").val()
+                },
+                success:function(data){
+                    if(data.ok){
+                        $("#msg-error").hide(10);
+                        $("#msg-success").show(100);
+                        $("#msg-success-p").html(data.msg);
+                        window.setTimeout("location.href='user.php'", 2000);
+                    }else{
+                        $("#msg-error").show(100);
+                        $("#msg-error-p").html(data.msg);
+                    }
+                },
+                error:function(jqXHR){
+                    $("#msg-error").hide(10);
+                    $("#msg-error").show(100);
+                    $("#msg-error-p").html("发生错误："+jqXHR.status);
+                }
+            })
+        })
+        $("#ok-close").click(function(){
+            $("#msg-success").hide(100);
+        })
+        $("#error-close").click(function(){
+            $("#msg-error").hide(100);
+        })
+    })
+</script>
+<?php
+require_once '_footer.php'; ?>

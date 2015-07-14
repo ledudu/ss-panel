@@ -1,6 +1,7 @@
 <?php
 /**
  * User Shadowsocks  info Class
+ * @author  orvice <orvice@gmail.com>
  */
 namespace Ss\User;
 
@@ -54,7 +55,7 @@ class Ss {
         return $this->get_user_info_array()['money'];
     }
 
-    //get unused transfer
+    //get unused traffic
     function unused_transfer(){
         //global $dbc;
         return $this->get_transfer_enable() - $this->get_transfer();
@@ -118,14 +119,29 @@ class Ss {
             "uid" => $this->uid
         ]);
     }
-    
-    // set transfer enable
-    function set_transfer($transfer){
-        $this->db->update("user",[
-            "transfer_enable" => $transfer
-        ],[
-            "uid" => $this->uid
+
+    //user info array
+    function getUserArray(){
+        $datas = $this->db->select("user","*",[
+            "uid" => $this->uid,
+            "LIMIT" => "1"
         ]);
+        return $datas['0'];
+    }
+
+    //获取已用流量
+    function getUsedTransfer(){
+        return $this->getUserArray()['u']+$this->getUserArray()['d'];
+    }
+
+    //获取总流量
+    function getTransferEnable(){
+        return $this->getUserArray()['transfer_enable'];
+    }
+
+    //剩余流量
+    function getUnusedTransfer(){
+        return $this->getTransferEnable()-$this->getUsedTransfer();
     }
 
 }

@@ -5,14 +5,22 @@ namespace Ss\Etc;
 
 class Comm {
 
-    //获取最后一个用户的port
-    function get_last_port(){
-        global $dbc;
-        $sql = "SELECT * FROM `user` ORDER BY UID DESC LIMIT 1";
-        $query = $dbc->query($sql);
-        $rs = $query->fetch_array();
-        return $rs['port'];
+
+    private $kb = 1024, $mb = 1048576, $gb = 1073741824;
+
+    // to kb mb gb
+    static function toKB($value){
+        return $value/1024;
     }
+
+    static function toMB($value){
+        return $value/(1024*1024);
+    }
+
+    static function toGB($value){
+        return $value/(1024*1024*1024);
+    }
+
 
     //Gravatar
     static function get_gravatar( $email, $s = 80, $d = 'mm', $r = 'g', $img = false, $atts = array() ) {
@@ -39,5 +47,34 @@ class Comm {
             $char .= $chars[ mt_rand(0, strlen($chars) - 1) ];
         }
         return $char;
+    }
+
+    static function ToDateTime($time){
+        return date('Y-m-d H:i:s',$time);
+    }
+
+    /**
+     * 根据流量值自动转换单位输出
+     * @author   eaves chen<leaves615@gmail.com>
+     * @param $value 流量值
+     */
+
+    static function flowAutoShow($value){
+        global $tokb, $tomb, $togb;
+        if ($value > $togb) {
+            echo round($value/$togb, 2);
+            echo "GB";
+        }
+        else if ($value > $tomb) {
+            echo round($value/$tomb, 2);
+            echo "MB";
+        }
+        else if ($value > $tokb) {
+            echo round($value/$tokb, 2);
+            echo "KB";
+        } else{
+            echo round($value, 2);
+            echo "";
+        }
     }
 }
